@@ -1,7 +1,6 @@
 services:
   - type: web
     name: carevia
-    env: php
     plan: free
     region: oregon
     buildCommand: "./render-build.sh"
