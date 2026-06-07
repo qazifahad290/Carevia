@@ -2,12 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
 use App\Models\Specialty;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,10 +26,10 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($specialties as $s) {
-            Specialty::create($s);
+            Specialty::firstOrCreate(['slug' => $s['slug']], $s);
         }
 
-        $doctors = [
+        $doctorSeed = [
             ['Sarah Johnson',     1, 4.9, 75,  8, 'New York, NY'],
             ['Michael Chen',      1, 4.7, 90, 12, 'New York, NY'],
             ['Priya Patel',       2, 4.8, 60,  6, 'Brooklyn, NY'],
@@ -46,38 +49,103 @@ class DatabaseSeeder extends Seeder
             'Skilled professional committed to delivering high-quality care and building long-term patient relationships.',
         ];
 
-        foreach ($doctors as $i => [$name, $specId, $rating, $price, $years, $location]) {
-            Doctor::create([
-                'specialty_id'    => $specId,
-                'name'            => $name,
-                'bio'             => $bios[$i % count($bios)],
-                'rating'          => $rating,
-                'price'           => $price,
-                'years_experience'=> $years,
-                'location'        => $location,
-                'is_active'       => true,
-            ]);
+        $demoPatient = User::updateOrCreate(
+            ['email' => 'patient@demo.com'],
+            [
+                'name'     => 'Demo Patient',
+                'password' => Hash::make('password'),
+                'role'     => User::ROLE_PATIENT,
+                'phone'    => '+1 (555) 123-4567',
+                'dob'      => '1995-06-15',
+                'address'  => '123 Main St, New York, NY',
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'admin@carevia.test'],
+            [
+                'name'     => 'Site Admin',
+                'password' => Hash::make('password'),
+                'role'     => User::ROLE_ADMIN,
+                'phone'    => '+1 (555) 000-0001',
+            ]
+        );
+
+        $extraPatients = [
+            ['John Carter',     'john@example.com',    '+1 (555) 220-1010'],
+            ['Maria Lopez',     'maria@example.com',   '+1 (555) 220-2020'],
+            ['Robert Singh',    'robert@example.com',  '+1 (555) 220-3030'],
+        ];
+        foreach ($extraPatients as [$name, $email, $phone]) {
+            User::updateOrCreate(
+                ['email' => $email],
+                ['name' => $name, 'password' => Hash::make('password'), 'role' => User::ROLE_PATIENT, 'phone' => $phone]
+            );
         }
 
-        foreach (Doctor::all() as $doctor) {
+        foreach ($doctorSeed as $i => [$name, $specId, $rating, $price, $years, $location]) {
+            $slug = Str::slug($name, '.');
+            $email = "dr.{$slug}@carevia.test";
+
+            $user = User::updateOrCreate(
+                ['email' => $email],
+                [
+                    'name'     => $name,
+                    'password' => Hash::make('password'),
+                    'role'     => User::ROLE_DOCTOR,
+                    'phone'    => '+1 (555) 100-' . str_pad((string) (1000 + $i), 4, '0', STR_PAD_LEFT),
+                ]
+            );
+
+            $doctor = Doctor::updateOrCreate(
+                ['name' => $name],
+                [
+                    'user_id'         => $user->id,
+                    'specialty_id'    => $specId,
+                    'bio'             => $bios[$i % count($bios)],
+                    'rating'          => $rating,
+                    'price'           => $price,
+                    'years_experience'=> $years,
+                    'location'        => $location,
+                    'is_active'       => true,
+                ]
+            );
+
             for ($day = 1; $day <= 5; $day++) {
-                DoctorSchedule::create([
-                    'doctor_id'   => $doctor->id,
-                    'day_of_week' => $day,
-                    'start_time'  => '09:00',
-                    'end_time'    => '17:00',
-                    'slot_minutes'=> 30,
-                ]);
+                DoctorSchedule::updateOrCreate(
+                    ['doctor_id' => $doctor->id, 'day_of_week' => $day],
+                    [
+                        'start_time'  => '09:00',
+                        'end_time'    => '17:00',
+                        'slot_minutes'=> 30,
+                    ]
+                );
             }
         }
 
-        User::create([
-            'name'     => 'Demo Patient',
-            'email'    => 'patient@demo.com',
-            'password' => Hash::make('password'),
-            'phone'    => '+1 (555) 123-4567',
-            'dob'      => '1995-06-15',
-            'address'  => '123 Main St, New York, NY',
-        ]);
+        $sarah  = Doctor::where('name', 'Sarah Johnson')->first();
+        $james  = Doctor::where('name', 'James Williams')->first();
+        $michael = Doctor::where('name', 'Michael Chen')->first();
+        $john   = User::where('email', 'john@example.com')->first();
+        $maria  = User::where('email', 'maria@example.com')->first();
+
+        $samples = [
+            [$demoPatient, $sarah,   Carbon::today()->addDays(2)->toDateString(), '10:00', 'confirmed', 'Annual checkup'],
+            [$demoPatient, $james,   Carbon::today()->addDays(5)->toDateString(), '14:30', 'confirmed', null],
+            [$demoPatient, $michael, Carbon::today()->subDays(7)->toDateString(), '11:00', 'completed', 'Follow-up'],
+            [$john,        $sarah,   Carbon::today()->addDays(1)->toDateString(), '09:30', 'confirmed', null],
+            [$maria,       $sarah,   Carbon::today()->addDays(3)->toDateString(), '15:00', 'confirmed', 'New patient'],
+        ];
+
+        foreach ($samples as [$patient, $doctor, $date, $time, $status, $notes]) {
+            Appointment::firstOrCreate(
+                ['doctor_id' => $doctor->id, 'date' => $date, 'time' => $time],
+                [
+                    'patient_id' => $patient->id,
+                    'status'     => $status,
+                    'notes'      => $notes,
+                ]
+            );
+        }
     }
 }

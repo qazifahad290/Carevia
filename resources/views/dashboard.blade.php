@@ -28,6 +28,25 @@
                 </div>
             </a>
         </div>
+
+        <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
+                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">Upcoming</div>
+                <div class="mt-1 text-2xl font-extrabold text-ink-900">{{ $stats['upcoming'] }}</div>
+            </a>
+            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
+                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">Completed</div>
+                <div class="mt-1 text-2xl font-extrabold text-green-600">{{ $stats['completed'] }}</div>
+            </a>
+            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
+                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">Cancelled</div>
+                <div class="mt-1 text-2xl font-extrabold text-red-500">{{ $stats['cancelled'] }}</div>
+            </a>
+            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
+                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">All visits</div>
+                <div class="mt-1 text-2xl font-extrabold text-ink-900">{{ $stats['total'] }}</div>
+            </a>
+        </div>
     </div>
 </section>
 

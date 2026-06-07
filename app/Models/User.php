@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -13,10 +14,15 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLE_PATIENT = 'patient';
+    public const ROLE_DOCTOR  = 'doctor';
+    public const ROLE_ADMIN   = 'admin';
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
         'phone',
         'dob',
         'address',
@@ -45,6 +51,35 @@ class User extends Authenticatable
     public function quickCareRequests(): HasMany
     {
         return $this->hasMany(QuickCareRequest::class, 'patient_id');
+    }
+
+    public function doctorProfile(): HasOne
+    {
+        return $this->hasOne(Doctor::class, 'user_id');
+    }
+
+    public function isPatient(): bool
+    {
+        return $this->role === self::ROLE_PATIENT;
+    }
+
+    public function isDoctor(): bool
+    {
+        return $this->role === self::ROLE_DOCTOR;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function dashboardRoute(): string
+    {
+        return match ($this->role) {
+            self::ROLE_DOCTOR => route('doctor.dashboard'),
+            self::ROLE_ADMIN  => route('admin.dashboard'),
+            default           => route('dashboard'),
+        };
     }
 
     public function avatarUrl(): string

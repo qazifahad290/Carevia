@@ -12,6 +12,7 @@ class Doctor extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'specialty_id',
         'name',
         'photo',
@@ -29,6 +30,11 @@ class Doctor extends Model
         'years_experience' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function specialty(): BelongsTo
     {

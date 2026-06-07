@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
@@ -30,6 +32,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'verified', 'role:doctor'])->prefix('doctor')->name('doctor.')->group(function () {
+    Route::get('/dashboard', [DoctorDashboardController::class, 'index'])->name('dashboard');
+    Route::patch('/appointments/{appointment}/complete', [DoctorDashboardController::class, 'complete'])->name('appointments.complete');
+    Route::patch('/appointments/{appointment}/cancel', [DoctorDashboardController::class, 'cancel'])->name('appointments.cancel');
+});
+
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
+    Route::get('/doctors', [AdminDashboardController::class, 'doctors'])->name('doctors');
+    Route::get('/appointments', [AdminDashboardController::class, 'appointments'])->name('appointments');
 });
 
 require __DIR__.'/auth.php';
