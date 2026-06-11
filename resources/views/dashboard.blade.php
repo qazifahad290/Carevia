@@ -1,120 +1,111 @@
 @extends('layouts.app')
 @section('title', 'Home — Carevia')
-
 @section('content')
-<section class="bg-gradient-to-br from-primary-50 to-surface-100 border-b border-primary-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid lg:grid-cols-3 gap-6 items-center">
-            <div class="lg:col-span-2">
-                <span class="chip bg-white text-primary-700">👋 Welcome back, {{ explode(' ', auth()->user()->name)[0] }}</span>
-                <h1 class="mt-3 text-3xl lg:text-4xl font-extrabold text-ink-900">How are you feeling today?</h1>
-                <p class="mt-2 text-ink-500">Search a doctor, browse specialties, or request quick care.</p>
-                <form action="{{ route('doctors.index') }}" method="GET" class="mt-5 flex gap-2 max-w-2xl">
-                    <div class="flex-1 relative">
-                        <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
-                        <input type="text" name="q" placeholder="Search doctors, specialties, conditions..." class="input pl-12 !py-3.5">
-                    </div>
-                    <button class="btn-primary !py-3 !px-6">Search</button>
-                </form>
-            </div>
-            <a href="{{ route('quick-care.create') }}" class="card p-6 bg-gradient-to-br from-primary-500 to-primary-700 text-white border-0 group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-xs font-semibold uppercase tracking-wider text-primary-100">Quick Care</div>
-                        <div class="mt-1 text-xl font-bold">Need help fast?</div>
-                        <div class="mt-1 text-sm text-primary-100">Tell us your symptoms and we'll match a specialist.</div>
-                    </div>
-                    <div class="w-12 h-12 rounded-2xl bg-white/15 grid place-items-center text-2xl group-hover:scale-110 transition">⚡</div>
-                </div>
-            </a>
-        </div>
-
-        <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
-                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">Upcoming</div>
-                <div class="mt-1 text-2xl font-extrabold text-ink-900">{{ $stats['upcoming'] }}</div>
-            </a>
-            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
-                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">Completed</div>
-                <div class="mt-1 text-2xl font-extrabold text-green-600">{{ $stats['completed'] }}</div>
-            </a>
-            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
-                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">Cancelled</div>
-                <div class="mt-1 text-2xl font-extrabold text-red-500">{{ $stats['cancelled'] }}</div>
-            </a>
-            <a href="{{ route('appointments.index') }}" class="card p-4 hover:shadow-cardHover transition">
-                <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">All visits</div>
-                <div class="mt-1 text-2xl font-extrabold text-ink-900">{{ $stats['total'] }}</div>
-            </a>
-        </div>
-    </div>
-</section>
-
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="flex items-end justify-between mb-6">
+<div class="max-w-2xl mx-auto">
+    {{-- Top bar --}}
+    <div class="px-5 pt-6 pb-4 flex items-center justify-between">
         <div>
-            <h2 class="text-2xl font-extrabold text-ink-900">Browse by specialty</h2>
-            <p class="text-sm text-ink-500 mt-1">Find the right doctor for what you need.</p>
+            <p class="text-xs text-ink-500 font-semibold uppercase tracking-wider">{{ now()->format('l, M d') }}</p>
+            <h1 class="text-xl font-extrabold text-ink-900 mt-0.5">Hello, {{ explode(' ', auth()->user()->name)[0] }}! 👋</h1>
         </div>
-        <a href="{{ route('doctors.index') }}" class="text-sm font-semibold text-primary-600 hover:text-primary-700">View all →</a>
-    </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        @foreach($specialties as $spec)
-        <a href="{{ route('doctors.index', ['specialty' => $spec->id]) }}" class="card p-5 text-center hover:shadow-cardHover hover:-translate-y-0.5 transition group">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-primary-50 grid place-items-center text-2xl group-hover:bg-primary-100">{{ $spec->icon }}</div>
-            <div class="mt-3 text-sm font-semibold text-ink-900">{{ $spec->name }}</div>
-            <div class="text-xs text-ink-500 mt-0.5">{{ $spec->doctors_count }} doctors</div>
+        <a href="{{ route('appointments.index') }}" class="relative w-10 h-10 rounded-full bg-white shadow-sm grid place-items-center">
+            <svg class="w-5 h-5 text-ink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            @if(\App\Models\Appointment::where('patient_id', auth()->id())->where('date', '>=', now()->toDateString())->where('status', 'confirmed')->count() > 0)
+                <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500"></span>
+            @endif
         </a>
-        @endforeach
     </div>
-</section>
 
-@if($todays->count())
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-    <h2 class="text-2xl font-extrabold text-ink-900 mb-5">Your upcoming visits</h2>
-    <div class="grid md:grid-cols-3 gap-4">
-        @foreach($todays as $appt)
-        <a href="{{ route('appointments.index') }}" class="card p-5 flex items-center gap-4 hover:shadow-cardHover transition">
-            <img src="{{ $appt->doctor->photoUrl() }}" class="w-14 h-14 rounded-2xl object-cover" alt="">
-            <div class="flex-1 min-w-0">
-                <div class="text-xs font-semibold text-primary-600 uppercase tracking-wider">{{ $appt->date->format('M d') }} · {{ \Carbon\Carbon::parse($appt->time)->format('g:i A') }}</div>
-                <div class="font-bold text-ink-900 truncate">Dr. {{ $appt->doctor->name }}</div>
-                <div class="text-sm text-ink-500 truncate">{{ $appt->doctor->specialty->name }}</div>
+    {{-- Search bar --}}
+    <div class="px-5 mb-6">
+        <form action="{{ route('doctors.index') }}" method="GET">
+            <div class="relative">
+                <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+                <input type="text" name="q" placeholder="Search doctors, specialties..." class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white shadow-sm border-0 focus:ring-2 focus:ring-primary-200 outline-none text-sm">
             </div>
-        </a>
-        @endforeach
+        </form>
     </div>
-</section>
-@endif
 
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="flex items-end justify-between mb-6">
-        <div>
-            <h2 class="text-2xl font-extrabold text-ink-900">Top-rated doctors</h2>
-            <p class="text-sm text-ink-500 mt-1">Trusted specialists patients love.</p>
+    {{-- Categories --}}
+    <div class="px-5 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-extrabold text-ink-900">Categories</h2>
+            <a href="{{ route('doctors.index') }}" class="text-xs font-semibold text-primary-600">See all</a>
         </div>
-        <a href="{{ route('doctors.index') }}" class="text-sm font-semibold text-primary-600 hover:text-primary-700">See more →</a>
+        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-5 px-5">
+            @foreach($specialties as $spec)
+                <a href="{{ route('doctors.index', ['specialty' => $spec->id]) }}" class="flex-shrink-0 w-24 text-center">
+                    <div class="w-full aspect-square rounded-2xl bg-white shadow-sm grid place-items-center text-3xl hover:shadow-md transition">
+                        {{ $spec->icon }}
+                    </div>
+                    <p class="mt-2 text-xs font-semibold text-ink-700 truncate">{{ $spec->name }}</p>
+                    <p class="text-[10px] text-ink-400">{{ $spec->doctors_count }} doctors</p>
+                </a>
+            @endforeach
+        </div>
     </div>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        @foreach($topDoctors as $doc)
-        <a href="{{ route('doctors.show', $doc) }}" class="card p-5 hover:shadow-cardHover transition group">
-            <div class="flex items-start gap-4">
-                <img src="{{ $doc->photoUrl() }}" class="w-16 h-16 rounded-2xl object-cover" alt="">
-                <div class="flex-1 min-w-0">
-                    <div class="text-xs font-semibold text-primary-600 uppercase tracking-wider">{{ $doc->specialty->name }}</div>
-                    <div class="font-bold text-ink-900 truncate">Dr. {{ $doc->name }}</div>
-                    <div class="text-sm text-ink-500 truncate">{{ $doc->years_experience }} yrs · {{ $doc->location }}</div>
+
+    {{-- Quick Care card --}}
+    <div class="px-5 mb-6">
+        <a href="{{ route('quick-care.create') }}" class="block rounded-2xl bg-gradient-to-r from-primary-500 to-primary-700 p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-primary-200">Quick Care</p>
+                    <p class="mt-1 text-lg font-bold">Need help fast?</p>
+                    <p class="mt-0.5 text-sm text-primary-100">Tell us symptoms, we match a specialist.</p>
                 </div>
-            </div>
-            <div class="mt-4 flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center gap-1 text-amber-500 text-sm font-semibold">★ {{ $doc->rating }}</div>
-                <div class="text-sm">
-                    <span class="text-ink-500">from </span>
-                    <span class="font-bold text-ink-900">${{ $doc->price }}</span>
-                </div>
+                <div class="w-12 h-12 rounded-2xl bg-white/15 grid place-items-center text-2xl">⚡</div>
             </div>
         </a>
-        @endforeach
     </div>
-</section>
+
+    {{-- Today's visits --}}
+    @if($todays->count())
+    <div class="px-5 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-extrabold text-ink-900">Today's visits</h2>
+            <a href="{{ route('appointments.index') }}" class="text-xs font-semibold text-primary-600">View all</a>
+        </div>
+        <div class="space-y-3">
+            @foreach($todays as $appt)
+                <a href="{{ route('appointments.index') }}" class="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm">
+                    <img src="{{ $appt->doctor->photoUrl() }}" class="w-14 h-14 rounded-xl object-cover" alt="">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold text-primary-600">{{ $appt->date->format('M d') }} · {{ \Carbon\Carbon::parse($appt->time)->format('g:i A') }}</p>
+                        <p class="font-bold text-ink-900 truncate">Dr. {{ $appt->doctor->name }}</p>
+                        <p class="text-xs text-ink-500 truncate">{{ $appt->doctor->specialty->name }}</p>
+                    </div>
+                    <span class="chip bg-green-50 text-green-700 text-xs">Confirmed</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Top rated doctors --}}
+    <div class="px-5 pb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-extrabold text-ink-900">Top doctors</h2>
+            <a href="{{ route('doctors.index') }}" class="text-xs font-semibold text-primary-600">See all</a>
+        </div>
+        <div class="space-y-3">
+            @foreach($topDoctors as $doc)
+                <a href="{{ route('doctors.show', $doc) }}" class="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+                    <img src="{{ $doc->photoUrl() }}" class="w-16 h-16 rounded-xl object-cover" alt="">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold text-primary-600 uppercase">{{ $doc->specialty->name }}</p>
+                        <p class="font-bold text-ink-900 truncate">Dr. {{ $doc->name }}</p>
+                        <p class="text-xs text-ink-500">{{ $doc->years_experience }} yrs exp</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs font-semibold text-amber-500">★ {{ $doc->rating }}</span>
+                            <span class="text-xs text-ink-400">·</span>
+                            <span class="text-xs font-semibold text-ink-700">${{ $doc->price }}</span>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-ink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            @endforeach
+        </div>
+    </div>
+</div>
 @endsection

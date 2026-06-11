@@ -10,7 +10,18 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuickCareController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [HomeController::class, 'welcome'])->name('home');
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect(auth()->user()->dashboardRoute());
+    }
+    return view('splash');
+})->name('home');
+
+Route::get('/welcome', [HomeController::class, 'welcome']);
+
+Route::get('/otp', function () {
+    return view('auth.otp');
+})->name('otp');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
@@ -22,6 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/doctors/{doctor}/book', [BookingController::class, 'store'])->name('booking.store');
     Route::get('/doctors/{doctor}/slots', [BookingController::class, 'slots'])->name('booking.slots');
     Route::get('/appointments/{appointment}/success', [BookingController::class, 'success'])->name('appointments.success');
+    Route::get('/appointments/{appointment}/payment', [BookingController::class, 'payment'])->name('appointments.payment');
+    Route::post('/appointments/{appointment}/payment', [BookingController::class, 'processPayment'])->name('appointments.payment.process');
 
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');

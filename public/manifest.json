@@ -1,0 +1,16 @@
+{
+  "name": "Carevia",
+  "short_name": "Carevia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBFAFF",
+  "theme_color": "#5B2EE6",
+  "description": "Book trusted doctors in minutes.",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%235B2EE6'/%3E%3Cpath d='M96 148c-2 0-4-.6-5.6-2-15-12-38-32-38-53 0-15 12-27 27-27 8.3 0 16 3.8 20.6 9.8C104.4 69.8 112 66 120.3 66c15 0 27 12 27 27 0 21-23 41-38 53-1.6 1.4-3.6 2-5.6 2Z' fill='white'/%3E%3Crect x='88.3' y='85' width='15.4' height='39' rx='5' fill='%235B2EE6'/%3E%3Crect x='76' y='96' width='38.5' height='15.5' rx='5' fill='%235B2EE6'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QuickCareRequest;
 use App\Models\Specialty;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,18 +19,12 @@ class QuickCareController extends Controller
     {
         $data = $request->validate([
             'specialty_id' => 'required|exists:specialties,id',
-            'reason'       => 'required|string|min:10|max:1000',
-            'urgency'      => 'required|in:low,normal,high',
+            'urgency'      => 'required|in:low,normal,urgent',
+            'reason'       => 'required|string|max:1000',
         ]);
 
-        QuickCareRequest::create([
-            'patient_id'   => $request->user()->id,
-            'specialty_id' => $data['specialty_id'],
-            'reason'       => $data['reason'],
-            'urgency'      => $data['urgency'],
-            'status'       => 'pending',
-        ]);
+        $request->user()->quickCareRequests()->create($data);
 
-        return redirect()->route('appointments.index')->with('status', 'Quick care request submitted. A specialist will be matched shortly.');
+        return redirect()->route('dashboard')->with('status', 'Quick care request submitted! We\'ll match you soon.');
     }
 }

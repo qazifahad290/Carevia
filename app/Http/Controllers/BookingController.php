@@ -100,4 +100,30 @@ class BookingController extends Controller
         $appointment->load('doctor.specialty');
         return view('booking.success', compact('appointment'));
     }
+
+    public function payment(Appointment $appointment): View
+    {
+        abort_unless($appointment->patient_id === auth()->id(), 403);
+        $appointment->load('doctor.specialty');
+        return view('booking.payment', compact('appointment'));
+    }
+
+    public function processPayment(Appointment $appointment, Request $request): RedirectResponse
+    {
+        abort_unless($appointment->patient_id === auth()->id(), 403);
+
+        $request->validate([
+            'card_number' => 'required|string|size:19',
+            'expiry'      => 'required|string',
+            'cvv'         => 'required|string|size:3',
+            'name'        => 'required|string|max:255',
+        ]);
+
+        $appointment->update([
+            'notes' => ($appointment->notes ? $appointment->notes . "\n---\n" : '') . 'Payment completed on ' . now()->format('M d, Y g:i A'),
+        ]);
+
+        return redirect()->route('appointments.success', $appointment)
+            ->with('status', 'Payment successful! Your appointment is confirmed.');
+    }
 }

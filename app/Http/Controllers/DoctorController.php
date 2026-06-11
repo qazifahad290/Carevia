@@ -41,6 +41,15 @@ class DoctorController extends Controller
     public function show(Doctor $doctor): View
     {
         $doctor->load('specialty', 'schedules');
-        return view('doctors.show', compact('doctor'));
+
+        $reviews = collect([
+            (object)['name' => 'Sarah M.', 'avatar' => 1, 'rating' => 5, 'date' => '2 days ago', 'text' => 'Dr. ' . $doctor->name . ' was incredibly thorough. Took the time to explain everything clearly.'],
+            (object)['name' => 'James K.', 'avatar' => 2, 'rating' => 5, 'date' => '1 week ago', 'text' => 'Very professional and caring. Highly recommend.' ],
+            (object)['name' => 'Emily R.', 'avatar' => 3, 'rating' => 4, 'date' => '2 weeks ago', 'text' => 'Great experience overall. Wait time was minimal.' ],
+            (object)['name' => 'David L.', 'avatar' => 4, 'rating' => 5, 'date' => '3 weeks ago', 'text' => 'Best doctor I\'ve visited in years. Knowledgeable and kind.' ],
+            (object)['name' => 'Anna P.', 'avatar' => 5, 'rating' => 4, 'date' => '1 month ago', 'text' => 'Clean clinic, friendly staff, and excellent care.' ],
+        ]);
+
+        return view('doctors.show', compact('doctor', 'reviews'));
     }
 }
